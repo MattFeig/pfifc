@@ -137,7 +137,7 @@ def make_corrfig(z_trans_mat, weights = False):
     # plt.close()
 
 
-def get_flat_inds_for_net(net):
+def get_flat_inds_for_net(net, within=False):
     range_list = [(0,24),(24,64), (64,69), (69,110),(110,142),(142,166),(166,213),
         (213, 221),(221, 225),(225, 263),(263, 271),(271, 294),(294, 333),(333, 353)]
     names_abbrev = ['Auditory','CingOperc','CingPar','Default','DorsalAtt','FrontoPar','None',
@@ -148,6 +148,10 @@ def get_flat_inds_for_net(net):
     mask = np.ones((352,352))
     mask[:, net_start:net_end+1] = 2
     mask[net_start:net_end+1, :] = 2
+
+    if within == True:
+        mask = np.ones((352,352))
+        mask[net_start:net_end+1, net_start:net_end+1] = 2
 
     flatmask = np.triu(mask).flatten()[np.triu(mask).flatten().nonzero()]
     return np.where(flatmask == 2)[0]
