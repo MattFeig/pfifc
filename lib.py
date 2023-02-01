@@ -6,7 +6,6 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.patheffects as PathEffects
 from sklearn.model_selection import cross_val_score, LeaveOneOut
 from sklearn import svm
-from sklearn.linear_model import LogisticRegression
 
 def linearize(corrmat):
 
