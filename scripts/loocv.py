@@ -11,7 +11,7 @@ from data_loader import data_loader
 
 def prep_data():
     # Load Demographic data and subject lists
-    demo = pd.read_csv('data/demo.csv', names=['VC', 'Age', 'Group'])
+    demo = pd.read_csv('../data/demo.csv', names=['VC', 'Age', 'Group'])
 
     demo_ts = demo.where(demo.Group=='TS').dropna().reset_index(drop=True)
     demo_hc = demo.where(demo.Group=='TFC').dropna().reset_index(drop=True)
@@ -73,8 +73,8 @@ def main():
     X_scale, y = prep_data()
     print(f'running random forest with estimators: {args.estimators}')
     scores, cv_fold_importance = run_randomforest_loocv(X_scale,y,args.estimators)
-    np.savetxt(f'loocv_results/scores{args.estimators}.csv', scores, fmt='%.4e', delimiter=',')
-    np.savetxt(f'loocv_results/cv_fold_importance{args.estimators}.csv', cv_fold_importance, fmt='%.4e', delimiter=',')
+    np.savetxt(f'../results/loocv_results/scores{args.estimators}.csv', scores, fmt='%.4e', delimiter=',')
+    np.savetxt(f'../results/loocv_results/cv_fold_importance{args.estimators}.csv', cv_fold_importance, fmt='%.4e', delimiter=',')
 
 if __name__ == '__main__':
     sys.exit(main())

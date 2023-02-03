@@ -7,7 +7,7 @@ def data_loader(sub_demo_list):
     """Returns an roi x roi x partcipant np array, 
     for the particpants specified in the input subject demographic list"""
 
-    conn_directory = 'data/connectivity_data'
+    conn_directory = '../data/connectivity_data'
     conn = []
 
     for index, row in sub_demo_list.iterrows():
