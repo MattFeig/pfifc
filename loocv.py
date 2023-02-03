@@ -71,6 +71,7 @@ def main():
     args = arg_parser.parse_args()
 
     X_scale, y = prep_data()
+    print(f'running random forest with estimators: {args.estimators}')
     scores, cv_fold_importance = run_randomforest_loocv(X_scale,y,args.estimators)
     np.savetxt(f'loocv_results/scores{args.estimators}.csv', scores, fmt='%.4e', delimiter=',')
     np.savetxt(f'loocv_results/cv_fold_importance{args.estimators}.csv', cv_fold_importance, fmt='%.4e', delimiter=',')
