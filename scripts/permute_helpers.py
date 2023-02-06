@@ -4,8 +4,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import  LeaveOneOut
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
-import sys, argparse
-from lib import  linearize
+import sys, argparse, random
+from fc_helpers import  linearize, get_flat_inds_for_net
 from data_loader import data_loader
 
 
@@ -61,20 +61,52 @@ def run_randomforest_loocv(X_mat, y, estimators):
     
     return scores, cv_fold_importance
 
+def run_randomforest_permutation_loocv(X_mat, y, estimators = 500, permutations = 50):
+
+    cv = LeaveOneOut()
+    scores = []
+    netlist = ['Auditory','CingOperc','CingPar','Default','DorsalAtt','FrontoPar','None', 'RetroTemp','Salience','SMhand','SMmouth','VentralAtt','Visual','Subcort']   
+    fold = 0
+
+    # Loop over the LOOCV splits indicies
+    for train_ix, test_ix in cv.split(X_mat):
+            
+        # For each split, create the respective training and test set
+        X_train, X_test = X_mat[train_ix, :], X_mat[test_ix, :]
+        y_train, y_test = y[train_ix], y[test_ix]
+
+        # Train the model
+        clf = RandomForestClassifier(n_estimators=estimators)
+
+        clf.fit(X_train, y_train)
+            
+        for net in netlist:
+            
+            network_inds = get_flat_inds_for_net(net)
+    
+            temp_test_sub = np.copy(X_test)
+
+            for j in range(permutations):
+
+                # Permute the test subjects network connections individually 
+                for i in range(len(network_inds)):
+                    randsamp = random.randint(0,X_mat.shape[0]-2)
+                    temp_test_sub[0, network_inds[i]] = X_train[randsamp,network_inds[i]]
+
+                # Test the model using the permuted feature set
+                loo_score = clf.score(temp_test_sub, y_test)
+
+                # Keep track of the accuracy of the LOOCV with DMN permuted
+                scores.append(loo_score)     
+
+                if fold%50 == 0:
+                    print(fold)
+                fold = fold +1
+
+    return scores        
 
 def main():
-
-    arg_parser = argparse.ArgumentParser()
-    if len(sys.argv[1:])==0:
-        print('\nArguments required. Use -h option to print FULL usage.\n')
-    arg_parser.add_argument('estimators', type=int, help = 'number of random forest estimators')
-    args = arg_parser.parse_args()
-
-    X_scale, y = prep_data()
-    print(f'running random forest with estimators: {args.estimators}')
-    scores, cv_fold_importance = run_randomforest_loocv(X_scale,y,args.estimators)
-    np.savetxt(f'../results/loocv_results/scores{args.estimators}.csv', scores, fmt='%.4e', delimiter=',')
-    np.savetxt(f'../results/loocv_results/cv_fold_importance{args.estimators}.csv', cv_fold_importance, fmt='%.4e', delimiter=',')
+    pass
 
 if __name__ == '__main__':
     sys.exit(main())
