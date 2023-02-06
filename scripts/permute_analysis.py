@@ -8,8 +8,7 @@ def main():
 
     print(f'running random forest with permutation analysis')
     permute_network_scores = run_randomforest_permutation_loocv(X_scale,y)
-
-    np.savetxt(f'../results/permutations_results/permute_network_scores.csv', permute_network_scores, fmt='%.4e', delimiter=',')
+    np.savetxt(f'../results/permutation_results/permute_network_scores.csv', permute_network_scores, fmt='%.4e', delimiter=',')
 
 if __name__ == '__main__':
     sys.exit(main())
