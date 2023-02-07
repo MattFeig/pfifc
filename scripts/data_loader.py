@@ -4,7 +4,7 @@ import numpy as np
 
 def data_loader(sub_demo_list):
    
-    """Returns an roi x roi x partcipant np array, 
+    """Returns an roi x roi x participant np array, 
     for the particpants specified in the input subject demographic list"""
 
     conn_directory = '../data/connectivity_data'
