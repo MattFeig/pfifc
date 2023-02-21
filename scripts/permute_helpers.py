@@ -65,7 +65,8 @@ def run_randomforest_permutation_loocv(X_mat, y, estimators = 500, permutations 
 
     cv = LeaveOneOut()
     scores = []
-    netlist = ['Auditory','CingOperc','CingPar','Default','DorsalAtt','FrontoPar','None', 'RetroTemp','Salience','SMhand','SMmouth','VentralAtt','Visual','Subcort']   
+    netlist = ['Auditory','CingOperc','CingPar','Default','DorsalAtt','FrontoPar','None', 'RetroTemp','Salience',
+               'SMhand','SMmouth','VentralAtt','Visual','Subcort']   
     fold = 0
 
     # Loop over the LOOCV splits indicies
@@ -99,11 +100,64 @@ def run_randomforest_permutation_loocv(X_mat, y, estimators = 500, permutations 
                 # Keep track of the accuracy of the LOOCV with DMN permuted
                 scores.append(loo_score)     
 
-                if fold%50 == 0:
-                    print(fold)
-                fold = fold +1
+        if fold%50 == 0:
+            print(fold)
+        fold = fold +1
 
     return scores        
+
+
+def create_null(n_sample, pop_size = 62128): return random.sample(range(0,pop_size), n_sample)
+
+
+def run_randomforest_permutation_nulls_loocv(X_mat, y, n_nulls = 15, estimators = 500, permutations = 50):
+
+    cv = LeaveOneOut()
+    scores = []
+    netlist = ['Auditory','CingOperc','CingPar','Default','DorsalAtt','FrontoPar','None', 'RetroTemp','Salience', 
+               'SMhand','SMmouth','VentralAtt','Visual','Subcort']   
+    fold = 0
+
+    # Loop over the LOOCV splits indicies
+    for train_ix, test_ix in cv.split(X_mat):
+            
+        # For each split, create the respective training and test set
+        X_train, X_test = X_mat[train_ix, :], X_mat[test_ix, :]
+        y_train, y_test = y[train_ix], y[test_ix]
+
+        # Train the model
+        clf = RandomForestClassifier(n_estimators=estimators)
+
+        clf.fit(X_train, y_train)
+            
+        for net in netlist:
+            
+            for null in range(n_nulls):
+                
+                network_inds_len = len(get_flat_inds_for_net(net))
+                null_inds = create_null(network_inds_len)
+            
+                temp_test_sub = np.copy(X_test)
+
+                for j in range(permutations):
+
+                    # Permute the randomly selected connections individually 
+                    for i in range(len(null_inds)):
+                        randsamp = random.randint(0,X_mat.shape[0]-2)
+                        temp_test_sub[0, null_inds[i]] = X_train[randsamp, null_inds[i]]
+
+                    # Test the model using the permuted feature set
+                    loo_score = clf.score(temp_test_sub, y_test)
+
+                    # Keep track of the accuracy of the LOOCV with DMN permuted
+                    scores.append(loo_score)     
+
+        if fold%50 == 0:
+            print(fold)
+        fold = fold +1
+
+    return scores        
+
 
 def main():
     pass
